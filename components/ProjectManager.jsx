@@ -3,13 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const USERS = [
-  { id: "u1", name: "Mikkel H.", email: "mikkel@co.dk", avatar: "MH", role: "Admin", color: "#6366f1" },
-  { id: "u2", name: "Sara Jensen", email: "sara@co.dk", avatar: "SJ", role: "Manager", color: "#ec4899" },
-  { id: "u3", name: "Tobias Lund", email: "tobias@co.dk", avatar: "TL", role: "Member", color: "#f59e0b" },
-  { id: "u4", name: "Nadia Olsen", email: "nadia@co.dk", avatar: "NO", role: "Member", color: "#10b981" },
-  { id: "u5", name: "Erik Poulsen", email: "erik@co.dk", avatar: "EP", role: "Viewer", color: "#8b5cf6" },
-];
+let USERS = [];
 
 const COLUMNS = ["Backlog", "To Do", "In Progress", "Review", "Done"];
 const PRIORITIES = ["low", "medium", "high", "critical"];
@@ -17,7 +11,7 @@ const PRIORITIES = ["low", "medium", "high", "critical"];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const getUser = (id) => USERS.find((u) => u.id === id) || USERS[0];
+const getUser = (id) => USERS.find((u) => u.id === id) || { id: id || "?", name: "Unknown", avatar: "?", color: "#888", role: "Member", email: "" };
 const daysUntil = (d) => Math.ceil((new Date(d) - new Date()) / 86400000);
 const fmtDate = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const timeAgo = (d) => {
@@ -483,7 +477,7 @@ const TaskListView = ({ tasks, projects, onTask }) => {
 
 // ─── Task Detail ─────────────────────────────────────────────────────────────
 
-const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projects }) => {
+const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projects, members }) => {
   const [nc, setNc] = useState("");
   const [editing, setEditing] = useState(false);
   const [ef, setEf] = useState({});
@@ -514,7 +508,7 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
               </select></label>
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Assignee
               <select value={ef.assigneeId} onChange={(e) => setEf({ ...ef, assigneeId: e.target.value })} style={{ marginTop: 4 }}>
-                {USERS.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+                {members.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
               </select></label>
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Due Date
               <input type="date" value={ef.dueDate || ""} onChange={(e) => setEf({ ...ef, dueDate: e.target.value })} style={{ marginTop: 4 }} /></label>
@@ -574,8 +568,8 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
 
 // ─── New Task Modal ──────────────────────────────────────────────────────────
 
-const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus }) => {
-  const [f, setF] = useState({ title: "", description: "", priority: "medium", status: defaultStatus || "To Do", assigneeId: "u1", projectId: projects[0]?.id, dueDate: "2026-04-01", estimatedHours: 8 });
+const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus, members }) => {
+  const [f, setF] = useState({ title: "", description: "", priority: "medium", status: defaultStatus || "To Do", assigneeId: members[0]?.id || "", projectId: projects[0]?.id, dueDate: "2026-04-01", estimatedHours: 8 });
   useEffect(() => { if (defaultStatus) setF((p) => ({ ...p, status: defaultStatus })); }, [defaultStatus]);
   return (
     <Modal open={open} onClose={onClose} title="New Task">
@@ -595,7 +589,7 @@ const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus }) => {
             </select></label>
           <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Assignee
             <select value={f.assigneeId} onChange={(e) => setF({ ...f, assigneeId: e.target.value })} style={{ marginTop: 4 }}>
-              {USERS.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+              {members.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select></label>
           <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Due Date
             <input type="date" value={f.dueDate} onChange={(e) => setF({ ...f, dueDate: e.target.value })} style={{ marginTop: 4 }} /></label>
@@ -604,7 +598,7 @@ const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus }) => {
           <input type="number" value={f.estimatedHours} onChange={(e) => setF({ ...f, estimatedHours: parseInt(e.target.value) || 0 })} min={0} style={{ marginTop: 4 }} /></label>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
           <Btn variant="secondary" onClick={onClose}>Cancel</Btn>
-          <Btn onClick={() => { if (!f.title.trim()) return; onSave({ ...f, id: "t" + Date.now(), subtasks: 0, subtasksDone: 0, order: 0, tags: ["new"] }); setF({ title: "", description: "", priority: "medium", status: "To Do", assigneeId: "u1", projectId: projects[0]?.id, dueDate: "2026-04-01", estimatedHours: 8 }); onClose(); }}>Create Task</Btn>
+          <Btn onClick={() => { if (!f.title.trim()) return; onSave({ ...f, id: "t" + Date.now(), subtasks: 0, subtasksDone: 0, order: 0, tags: ["new"] }); setF({ title: "", description: "", priority: "medium", status: "To Do", assigneeId: members[0]?.id || "", projectId: projects[0]?.id, dueDate: "2026-04-01", estimatedHours: 8 }); onClose(); }}>Create Task</Btn>
         </div>
       </div>
     </Modal>
@@ -615,9 +609,9 @@ const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus }) => {
 
 const PROJECT_COLORS = ["#6366f1", "#ec4899", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#14b8a6"];
 
-const NewProjectModal = ({ open, onClose, onSave }) => {
+const NewProjectModal = ({ open, onClose, onSave, members }) => {
   const today = new Date().toISOString().split("T")[0];
-  const [f, setF] = useState({ name: "", description: "", status: "on_track", owner: "u1", deadline: today, color: "#6366f1" });
+  const [f, setF] = useState({ name: "", description: "", status: "on_track", owner: members[0]?.id || "", deadline: today, color: "#6366f1" });
   return (
     <Modal open={open} onClose={onClose} title="New Project">
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -634,7 +628,7 @@ const NewProjectModal = ({ open, onClose, onSave }) => {
             </select></label>
           <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Owner
             <select value={f.owner} onChange={(e) => setF({ ...f, owner: e.target.value })} style={{ marginTop: 4 }}>
-              {USERS.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+              {members.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select></label>
         </div>
         <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Deadline
@@ -655,7 +649,7 @@ const NewProjectModal = ({ open, onClose, onSave }) => {
           <Btn onClick={() => {
             if (!f.name.trim()) return;
             onSave({ ...f, id: "p" + Date.now(), createdAt: new Date().toISOString().split("T")[0] });
-            setF({ name: "", description: "", status: "on_track", owner: "u1", deadline: today, color: "#6366f1" });
+            setF({ name: "", description: "", status: "on_track", owner: members[0]?.id || "", deadline: today, color: "#6366f1" });
             onClose();
           }}>Create Project</Btn>
         </div>
@@ -666,19 +660,41 @@ const NewProjectModal = ({ open, onClose, onSave }) => {
 
 // ─── Team ────────────────────────────────────────────────────────────────────
 
-const TeamView = ({ tasks }) => {
+const MEMBER_COLORS = ["#6366f1", "#ec4899", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#14b8a6"];
+
+const TeamView = ({ tasks, members, onAdd, onDelete }) => {
   const rc = { Admin: "#6366f1", Manager: "#ec4899", Member: "#22c55e", Viewer: "#8b5cf6" };
+  const [modalOpen, setModalOpen] = useState(false);
+  const [f, setF] = useState({ name: "", email: "", role: "Member", color: "#6366f1" });
+
+  const handleAdd = () => {
+    if (!f.name.trim()) return;
+    const initials = f.name.trim().split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+    onAdd({ id: "u" + Date.now(), name: f.name.trim(), email: f.email.trim(), avatar: initials, role: f.role, color: f.color });
+    setF({ name: "", email: "", role: "Member", color: "#6366f1" });
+    setModalOpen(false);
+  };
+
   return (
     <div style={{ padding: 24 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+        <Btn onClick={() => setModalOpen(true)} icon={Icons.plus({ size: 14 })}>Add Member</Btn>
+      </div>
+      {members.length === 0 && (
+        <div style={{ textAlign: "center", padding: 48, color: "var(--text-tertiary)" }}>No team members yet. Add your first member!</div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
-        {USERS.map((user, i) => {
+        {members.map((user, i) => {
           const ut = tasks.filter((t) => t.assigneeId === user.id);
           const done = ut.filter((t) => t.status === "Done").length;
           const active = ut.filter((t) => t.status === "In Progress").length;
           const totalH = ut.reduce((s, t) => s + t.estimatedHours, 0);
           const doneH = ut.filter((t) => t.status === "Done").reduce((s, t) => s + t.estimatedHours, 0);
           return (
-            <div key={user.id} style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid var(--border)", animation: `fadeIn 0.3s ease ${i * 80}ms both` }}>
+            <div key={user.id} style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid var(--border)", animation: `fadeIn 0.3s ease ${i * 80}ms both`, position: "relative" }}>
+              <button onClick={() => onDelete(user.id)} style={{ position: "absolute", top: 12, right: 12, background: "var(--bg-tertiary)", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 4, borderRadius: 6, display: "flex" }}>
+                {Icons.x({ size: 14 })}
+              </button>
               <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
                 <Av user={user} size={44} />
                 <div style={{ flex: 1 }}>
@@ -708,6 +724,35 @@ const TeamView = ({ tasks }) => {
           );
         })}
       </div>
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Add Member">
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Name *
+            <input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Full name" autoFocus style={{ marginTop: 4 }}
+              onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); }} /></label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Email
+            <input value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="email@example.com" style={{ marginTop: 4 }} /></label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Role
+            <select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })} style={{ marginTop: 4 }}>
+              <option value="Admin">Admin</option>
+              <option value="Manager">Manager</option>
+              <option value="Member">Member</option>
+              <option value="Viewer">Viewer</option>
+            </select></label>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)", marginBottom: 8 }}>Color</p>
+            <div style={{ display: "flex", gap: 8 }}>
+              {MEMBER_COLORS.map((c) => (
+                <button key={c} onClick={() => setF({ ...f, color: c })} style={{ width: 28, height: 28, borderRadius: "50%", background: c, border: f.color === c ? "3px solid var(--text-primary)" : "3px solid transparent", cursor: "pointer", flexShrink: 0 }} />
+              ))}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+            <Btn variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Btn>
+            <Btn onClick={handleAdd}>Add Member</Btn>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -829,6 +874,7 @@ export default function App() {
   const [tasks, setTasks] = useState([]);
   const [comments, setComments] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [members, setMembers] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [saveStatus, setSaveStatus] = useState("saved");
   const [selTask, setSelTask] = useState(null);
@@ -846,6 +892,7 @@ export default function App() {
         setTasks(d.tasks || []);
         setComments(d.comments || []);
         setActivities(d.activities || []);
+        setMembers(d.members || []);
         setLoaded(true);
       });
   }, []);
@@ -857,11 +904,13 @@ export default function App() {
       fetch("/api/data", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projects, tasks, comments, activities }),
+        body: JSON.stringify({ projects, tasks, comments, activities, members }),
       }).then(() => setSaveStatus("saved"));
     }, 800);
     return () => clearTimeout(timer);
-  }, [projects, tasks, comments, activities, loaded]);
+  }, [projects, tasks, comments, activities, members, loaded]);
+
+  useEffect(() => { USERS = members; }, [members]);
 
   useEffect(() => {
     const h = (e) => {
@@ -874,6 +923,11 @@ export default function App() {
 
   const openTask = (t) => { setSelTask(t); setDetailOpen(true); };
   const openNew = (status) => { setNewStatus(status || "To Do"); setNewOpen(true); };
+  const addMember = (m) => {
+    setMembers((p) => [...p, m]);
+    setActivities((p) => [{ id: "a" + Date.now(), type: "member_joined", userId: m.id, projectId: null, meta: { name: m.name }, createdAt: new Date().toISOString() }, ...p]);
+  };
+  const deleteMember = (id) => setMembers((p) => p.filter((m) => m.id !== id));
 
   const titles = {
     dashboard: ["Dashboard", "Overview of all projects and activity"],
@@ -946,21 +1000,21 @@ export default function App() {
         {view === "dashboard" && <DashboardView projects={projects} tasks={tasks} activities={activities} />}
         {view === "kanban" && <KanbanView tasks={tasks} setTasks={setTasks} projects={projects} onTask={openTask} onNew={openNew} />}
         {view === "tasks" && <TaskListView tasks={tasks} projects={projects} onTask={openTask} />}
-        {view === "team" && <TeamView tasks={tasks} />}
+        {view === "team" && <TeamView tasks={tasks} members={members} onAdd={addMember} onDelete={deleteMember} />}
         {view === "timeline" && <TimelineView tasks={tasks} projects={projects} />}
         {view === "activity" && <ActivityView activities={activities} />}
       </div>
 
       <TaskDetail task={selTask} open={detailOpen} onClose={() => setDetailOpen(false)}
-        comments={comments} projects={projects}
+        comments={comments} projects={projects} members={members}
         onComment={(tid, c) => setComments((p) => [...p, { id: "c" + Date.now(), content: c, authorId: "u1", taskId: tid, createdAt: new Date().toISOString() }])}
         onUpdate={(t) => { setTasks((p) => p.map((x) => x.id === t.id ? { ...x, ...t } : x)); setSelTask(t); }} />
-      <NewTaskModal open={newOpen} onClose={() => setNewOpen(false)} projects={projects} defaultStatus={newStatus}
+      <NewTaskModal open={newOpen} onClose={() => setNewOpen(false)} projects={projects} defaultStatus={newStatus} members={members}
         onSave={(t) => {
           setTasks((p) => [...p, t]);
           setActivities((p) => [{ id: "a" + Date.now(), type: "task_created", userId: "u1", projectId: t.projectId, taskId: t.id, meta: { title: t.title }, createdAt: new Date().toISOString() }, ...p]);
         }} />
-      <NewProjectModal open={newProjOpen} onClose={() => setNewProjOpen(false)}
+      <NewProjectModal open={newProjOpen} onClose={() => setNewProjOpen(false)} members={members}
         onSave={(p) => {
           setProjects((prev) => [...prev, p]);
           setActivities((prev) => [{ id: "a" + Date.now(), type: "task_created", userId: "u1", projectId: p.id, taskId: null, meta: { title: p.name }, createdAt: new Date().toISOString() }, ...prev]);
