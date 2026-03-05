@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -883,6 +883,8 @@ export default function App() {
   const [members, setMembers] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [saveStatus, setSaveStatus] = useState("saved");
+  const hasSaved = useRef(false);
+  const abortRef = useRef(null);
   const [selTask, setSelTask] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
@@ -892,7 +894,10 @@ export default function App() {
 
   useEffect(() => {
     fetch("/api/data", { cache: "no-store" })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Load failed: ${r.status}`);
+        return r.json();
+      })
       .then((d) => {
         setProjects(d.projects || []);
         setTasks(d.tasks || []);
@@ -900,11 +905,21 @@ export default function App() {
         setActivities(d.activities || []);
         setMembers(d.members || []);
         setLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Failed to load data:", err);
+        setSaveStatus("error");
       });
   }, []);
 
   useEffect(() => {
     if (!loaded) return;
+    if (!hasSaved.current) { hasSaved.current = true; return; }
+
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setSaveStatus("saving");
     const data = { projects, tasks, comments, activities, members };
     fetch("/api/data", {
@@ -912,8 +927,10 @@ export default function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
       keepalive: true,
-    }).then((r) => { if (!r.ok) throw new Error(); setSaveStatus("saved"); })
-      .catch(() => setSaveStatus("error"));
+      signal: controller.signal,
+    })
+      .then((r) => { if (!r.ok) throw new Error(); setSaveStatus("saved"); })
+      .catch((err) => { if (err.name === "AbortError") return; setSaveStatus("error"); });
   }, [projects, tasks, comments, activities, members, loaded]);
 
   useEffect(() => { USERS = members; }, [members]);
