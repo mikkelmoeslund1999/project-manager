@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -891,7 +891,7 @@ export default function App() {
   const [mobOpen, setMobOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/data")
+    fetch("/api/data", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         setProjects(d.projects || []);
@@ -911,6 +911,7 @@ export default function App() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      keepalive: true,
     }).then((r) => { if (!r.ok) throw new Error(); setSaveStatus("saved"); })
       .catch(() => setSaveStatus("error"));
   }, [projects, tasks, comments, activities, members, loaded]);

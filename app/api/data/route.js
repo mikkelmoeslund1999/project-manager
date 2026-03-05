@@ -10,23 +10,20 @@ function getRedis() {
   });
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const redis = getRedis();
   const data = await redis.get(KEY);
-  if (!data) {
-    return NextResponse.json({
-      projects: [],
-      tasks: [],
-      comments: [],
-      activities: [],
-    });
-  }
-  return NextResponse.json(data);
+  return NextResponse.json(
+    data || { projects: [], tasks: [], comments: [], activities: [], members: [] },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }
 
 export async function PUT(request) {
   const redis = getRedis();
   const body = await request.json();
   await redis.set(KEY, body);
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
 }
