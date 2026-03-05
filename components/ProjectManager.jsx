@@ -12,6 +12,7 @@ const PRIORITIES = ["low", "medium", "high", "critical"];
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const getUser = (id) => USERS.find((u) => u.id === id) || { id: id || "?", name: "Unknown", avatar: "?", color: "#888", role: "Member", email: "" };
+const getAssigneeIds = (t) => t.assigneeIds || (t.assigneeId ? [t.assigneeId] : []);
 const daysUntil = (d) => Math.ceil((new Date(d) - new Date()) / 86400000);
 const fmtDate = (d) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const timeAgo = (d) => {
@@ -264,7 +265,7 @@ const DashboardView = ({ projects, tasks, activities }) => {
           const pt = tasks.filter((t) => t.projectId === p.id);
           const sc = statusC[p.status];
           const dl = daysUntil(p.deadline);
-          const team = [...new Set(pt.map((t) => t.assigneeId))];
+          const team = [...new Set(pt.flatMap((t) => getAssigneeIds(t)))];
           return (
             <div key={p.id} style={{
               background: "var(--bg-card)", borderRadius: 12, padding: 20,
@@ -343,7 +344,7 @@ const KanbanView = ({ tasks, setTasks, projects, onTask, onNew }) => {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8, minHeight: 60 }}>
                 {ct.map((task) => {
-                  const u = getUser(task.assigneeId);
+                  const assignees = getAssigneeIds(task).map(getUser);
                   const pc = prioC[task.priority];
                   const dl = daysUntil(task.dueDate);
                   const pr = projects.find((p) => p.id === task.projectId);
@@ -369,7 +370,7 @@ const KanbanView = ({ tasks, setTasks, projects, onTask, onNew }) => {
                           <Badge fg={pc.fg} bg={pc.bg}>{pc.label}</Badge>
                           {dl <= 3 && dl >= 0 && task.status !== "Done" && <span style={{ fontSize: 10.5, color: "#ef4444", fontWeight: 700 }}>{dl}d</span>}
                         </div>
-                        <Av user={u} size={22} />
+                        <div style={{ display: "flex" }}>{assignees.map((a, j) => <div key={a.id} style={{ marginLeft: j > 0 ? -6 : 0, border: "2px solid var(--bg-card)", borderRadius: "50%" }}><Av user={a} size={22} /></div>)}</div>
                       </div>
                     </div>
                   );
@@ -434,7 +435,7 @@ const TaskListView = ({ tasks, projects, onTask }) => {
             </thead>
             <tbody>
               {filtered.map((t) => {
-                const u = getUser(t.assigneeId);
+                const assignees = getAssigneeIds(t).map(getUser);
                 const pc = prioC[t.priority];
                 const pr = projects.find((p) => p.id === t.projectId);
                 return (
@@ -458,7 +459,8 @@ const TaskListView = ({ tasks, projects, onTask }) => {
                     </td>
                     <td style={{ padding: "11px 14px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <Av user={u} size={20} /><span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{u.name}</span>
+                        <div style={{ display: "flex" }}>{assignees.map((a, j) => <div key={a.id} style={{ marginLeft: j > 0 ? -6 : 0, border: "2px solid var(--bg-card)", borderRadius: "50%" }}><Av user={a} size={20} /></div>)}</div>
+                        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{assignees.map((a) => a.name).join(", ")}</span>
                       </div>
                     </td>
                     <td style={{ padding: "11px 14px", fontSize: 12, color: daysUntil(t.dueDate) < 0 && t.status !== "Done" ? "#ef4444" : "var(--text-secondary)", whiteSpace: "nowrap", fontWeight: 500 }}>{fmtDate(t.dueDate)}</td>
@@ -484,7 +486,7 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
   useEffect(() => { if (task) setEf({ ...task }); }, [task]);
   if (!task) return null;
 
-  const u = getUser(task.assigneeId);
+  const assignees = getAssigneeIds(task).map(getUser);
   const pc = prioC[task.priority];
   const tc = comments.filter((c) => c.taskId === task.id);
   const pr = projects.find((p) => p.id === task.projectId);
@@ -511,10 +513,21 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
                 <option value="">— No project —</option>
                 {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select></label>
-            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Assignee
-              <select value={ef.assigneeId} onChange={(e) => setEf({ ...ef, assigneeId: e.target.value })} style={{ marginTop: 4 }}>
-                {members.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
-              </select></label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Assignees
+              <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 5 }}>
+                {members.map((m) => {
+                  const ids = getAssigneeIds(ef);
+                  return (
+                    <label key={m.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 400, cursor: "pointer" }}>
+                      <input type="checkbox" checked={ids.includes(m.id)} onChange={(e) => {
+                        const next = e.target.checked ? [...ids, m.id] : ids.filter((id) => id !== m.id);
+                        setEf({ ...ef, assigneeIds: next });
+                      }} />
+                      {m.name}
+                    </label>
+                  );
+                })}
+              </div></label>
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Due Date
               <input type="date" value={ef.dueDate || ""} onChange={(e) => setEf({ ...ef, dueDate: e.target.value })} style={{ marginTop: 4 }} /></label>
           </div>
@@ -533,8 +546,8 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
           <p style={{ fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 18 }}>{task.description}</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18, padding: 16, background: "var(--bg-tertiary)", borderRadius: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Av user={u} size={24} />
-              <div><p style={{ fontSize: 10.5, color: "var(--text-tertiary)" }}>Assignee</p><p style={{ fontSize: 12.5, fontWeight: 600 }}>{u.name}</p></div>
+              <div style={{ display: "flex" }}>{assignees.map((a, j) => <div key={a.id} style={{ marginLeft: j > 0 ? -6 : 0, border: "2px solid var(--bg-tertiary)", borderRadius: "50%" }}><Av user={a} size={24} /></div>)}</div>
+              <div><p style={{ fontSize: 10.5, color: "var(--text-tertiary)" }}>Assignees</p><p style={{ fontSize: 12.5, fontWeight: 600 }}>{assignees.map((a) => a.name).join(", ") || "—"}</p></div>
             </div>
             <div><p style={{ fontSize: 10.5, color: "var(--text-tertiary)" }}>Due Date</p><p style={{ fontSize: 12.5, fontWeight: 600 }}>{fmtDate(task.dueDate)}</p></div>
             <div><p style={{ fontSize: 10.5, color: "var(--text-tertiary)" }}>Est. Hours</p><p style={{ fontSize: 12.5, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>{task.estimatedHours}h</p></div>
@@ -574,7 +587,7 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
 // ─── New Task Modal ──────────────────────────────────────────────────────────
 
 const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus, members }) => {
-  const [f, setF] = useState({ title: "", description: "", priority: "medium", status: defaultStatus || "To Do", assigneeId: members[0]?.id || "", projectId: "", dueDate: "2026-04-01", estimatedHours: 8 });
+  const [f, setF] = useState({ title: "", description: "", priority: "medium", status: defaultStatus || "To Do", assigneeIds: members[0] ? [members[0].id] : [], projectId: "", dueDate: "2026-04-01", estimatedHours: 8 });
   useEffect(() => { if (defaultStatus) setF((p) => ({ ...p, status: defaultStatus })); }, [defaultStatus]);
   return (
     <Modal open={open} onClose={onClose} title="New Task">
@@ -593,10 +606,18 @@ const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus, members 
             <select value={f.priority} onChange={(e) => setF({ ...f, priority: e.target.value })} style={{ marginTop: 4 }}>
               {PRIORITIES.map((p) => <option key={p} value={p}>{p[0].toUpperCase() + p.slice(1)}</option>)}
             </select></label>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Assignee
-            <select value={f.assigneeId} onChange={(e) => setF({ ...f, assigneeId: e.target.value })} style={{ marginTop: 4 }}>
-              {members.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
-            </select></label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Assignees
+            <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 5 }}>
+              {members.map((m) => (
+                <label key={m.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 400, cursor: "pointer" }}>
+                  <input type="checkbox" checked={f.assigneeIds.includes(m.id)} onChange={(e) => {
+                    const next = e.target.checked ? [...f.assigneeIds, m.id] : f.assigneeIds.filter((id) => id !== m.id);
+                    setF({ ...f, assigneeIds: next });
+                  }} />
+                  {m.name}
+                </label>
+              ))}
+            </div></label>
           <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Due Date
             <input type="date" value={f.dueDate} onChange={(e) => setF({ ...f, dueDate: e.target.value })} style={{ marginTop: 4 }} /></label>
         </div>
@@ -604,7 +625,7 @@ const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus, members 
           <input type="number" value={f.estimatedHours} onChange={(e) => setF({ ...f, estimatedHours: parseInt(e.target.value) || 0 })} min={0} style={{ marginTop: 4 }} /></label>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
           <Btn variant="secondary" onClick={onClose}>Cancel</Btn>
-          <Btn onClick={() => { if (!f.title.trim()) return; onSave({ ...f, id: "t" + Date.now(), subtasks: 0, subtasksDone: 0, order: 0, tags: ["new"] }); setF({ title: "", description: "", priority: "medium", status: "To Do", assigneeId: members[0]?.id || "", projectId: "", dueDate: "2026-04-01", estimatedHours: 8 }); onClose(); }}>Create Task</Btn>
+          <Btn onClick={() => { if (!f.title.trim()) return; onSave({ ...f, id: "t" + Date.now(), subtasks: 0, subtasksDone: 0, order: 0, tags: ["new"] }); setF({ title: "", description: "", priority: "medium", status: "To Do", assigneeIds: members[0] ? [members[0].id] : [], projectId: "", dueDate: "2026-04-01", estimatedHours: 8 }); onClose(); }}>Create Task</Btn>
         </div>
       </div>
     </Modal>
@@ -691,7 +712,7 @@ const TeamView = ({ tasks, members, onAdd, onDelete }) => {
       )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
         {members.map((user, i) => {
-          const ut = tasks.filter((t) => t.assigneeId === user.id);
+          const ut = tasks.filter((t) => getAssigneeIds(t).includes(user.id));
           const done = ut.filter((t) => t.status === "Done").length;
           const active = ut.filter((t) => t.status === "In Progress").length;
           const totalH = ut.reduce((s, t) => s + t.estimatedHours, 0);
@@ -1014,9 +1035,6 @@ export default function App() {
 
       <div className="main-wrap" style={{ marginLeft: 0 }}>
         <Header title={t} sub={s} setMobOpen={setMobOpen}>
-          <span style={{ fontSize: 11, color: saveStatus === "saving" ? "var(--text-tertiary)" : saveStatus === "error" ? "#ef4444" : "#22c55e", fontWeight: 600 }}>
-            {saveStatus === "saving" ? "Saving..." : saveStatus === "error" ? "Save failed" : loaded ? "Saved" : ""}
-          </span>
           <Btn onClick={() => openNew()} icon={Icons.plus({ size: 14 })}>New Task</Btn>
         </Header>
 
