@@ -903,17 +903,35 @@ export default function App() {
       });
   }, []);
 
+  const saveData = useCallback((data) => {
+    return fetch("/api/data", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then((r) => { if (!r.ok) throw new Error("Save failed"); setSaveStatus("saved"); })
+      .catch(() => setSaveStatus("error"));
+  }, [setSaveStatus]);
+
   useEffect(() => {
     if (!loaded) return;
     setSaveStatus("saving");
-    const timer = setTimeout(() => {
+    const data = { projects, tasks, comments, activities, members };
+    const timer = setTimeout(() => saveData(data), 800);
+    return () => clearTimeout(timer);
+  }, [projects, tasks, comments, activities, members, loaded]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    const handleUnload = () => {
       fetch("/api/data", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projects, tasks, comments, activities, members }),
-      }).then(() => setSaveStatus("saved"));
-    }, 800);
-    return () => clearTimeout(timer);
+        keepalive: true,
+      });
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
   }, [projects, tasks, comments, activities, members, loaded]);
 
   useEffect(() => { USERS = members; }, [members]);
@@ -997,8 +1015,8 @@ export default function App() {
 
       <div className="main-wrap" style={{ marginLeft: 0 }}>
         <Header title={t} sub={s} setMobOpen={setMobOpen}>
-          <span style={{ fontSize: 11, color: saveStatus === "saving" ? "var(--text-tertiary)" : "#22c55e", fontWeight: 600 }}>
-            {saveStatus === "saving" ? "Saving..." : loaded ? "Saved" : ""}
+          <span style={{ fontSize: 11, color: saveStatus === "saving" ? "var(--text-tertiary)" : saveStatus === "error" ? "#ef4444" : "#22c55e", fontWeight: 600 }}>
+            {saveStatus === "saving" ? "Saving..." : saveStatus === "error" ? "Save failed" : loaded ? "Saved" : ""}
           </span>
           <Btn onClick={() => openNew()} icon={Icons.plus({ size: 14 })}>New Task</Btn>
         </Header>
