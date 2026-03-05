@@ -506,6 +506,11 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
               <select value={ef.status} onChange={(e) => setEf({ ...ef, status: e.target.value })} style={{ marginTop: 4 }}>
                 {COLUMNS.map((c) => <option key={c} value={c}>{c}</option>)}
               </select></label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Project
+              <select value={ef.projectId || ""} onChange={(e) => setEf({ ...ef, projectId: e.target.value })} style={{ marginTop: 4 }}>
+                <option value="">— No project —</option>
+                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select></label>
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Assignee
               <select value={ef.assigneeId} onChange={(e) => setEf({ ...ef, assigneeId: e.target.value })} style={{ marginTop: 4 }}>
                 {members.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
@@ -569,7 +574,7 @@ const TaskDetail = ({ task, open, onClose, comments, onComment, onUpdate, projec
 // ─── New Task Modal ──────────────────────────────────────────────────────────
 
 const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus, members }) => {
-  const [f, setF] = useState({ title: "", description: "", priority: "medium", status: defaultStatus || "To Do", assigneeId: members[0]?.id || "", projectId: projects[0]?.id, dueDate: "2026-04-01", estimatedHours: 8 });
+  const [f, setF] = useState({ title: "", description: "", priority: "medium", status: defaultStatus || "To Do", assigneeId: members[0]?.id || "", projectId: "", dueDate: "2026-04-01", estimatedHours: 8 });
   useEffect(() => { if (defaultStatus) setF((p) => ({ ...p, status: defaultStatus })); }, [defaultStatus]);
   return (
     <Modal open={open} onClose={onClose} title="New Task">
@@ -581,6 +586,7 @@ const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus, members 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Project
             <select value={f.projectId} onChange={(e) => setF({ ...f, projectId: e.target.value })} style={{ marginTop: 4 }}>
+              <option value="">— No project —</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select></label>
           <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)" }}>Priority
@@ -598,7 +604,7 @@ const NewTaskModal = ({ open, onClose, onSave, projects, defaultStatus, members 
           <input type="number" value={f.estimatedHours} onChange={(e) => setF({ ...f, estimatedHours: parseInt(e.target.value) || 0 })} min={0} style={{ marginTop: 4 }} /></label>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
           <Btn variant="secondary" onClick={onClose}>Cancel</Btn>
-          <Btn onClick={() => { if (!f.title.trim()) return; onSave({ ...f, id: "t" + Date.now(), subtasks: 0, subtasksDone: 0, order: 0, tags: ["new"] }); setF({ title: "", description: "", priority: "medium", status: "To Do", assigneeId: members[0]?.id || "", projectId: projects[0]?.id, dueDate: "2026-04-01", estimatedHours: 8 }); onClose(); }}>Create Task</Btn>
+          <Btn onClick={() => { if (!f.title.trim()) return; onSave({ ...f, id: "t" + Date.now(), subtasks: 0, subtasksDone: 0, order: 0, tags: ["new"] }); setF({ title: "", description: "", priority: "medium", status: "To Do", assigneeId: members[0]?.id || "", projectId: "", dueDate: "2026-04-01", estimatedHours: 8 }); onClose(); }}>Create Task</Btn>
         </div>
       </div>
     </Modal>
