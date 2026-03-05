@@ -903,35 +903,16 @@ export default function App() {
       });
   }, []);
 
-  const saveData = useCallback((data) => {
-    return fetch("/api/data", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    }).then((r) => { if (!r.ok) throw new Error("Save failed"); setSaveStatus("saved"); })
-      .catch(() => setSaveStatus("error"));
-  }, [setSaveStatus]);
-
   useEffect(() => {
     if (!loaded) return;
     setSaveStatus("saving");
     const data = { projects, tasks, comments, activities, members };
-    const timer = setTimeout(() => saveData(data), 800);
-    return () => clearTimeout(timer);
-  }, [projects, tasks, comments, activities, members, loaded]);
-
-  useEffect(() => {
-    if (!loaded) return;
-    const handleUnload = () => {
-      fetch("/api/data", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projects, tasks, comments, activities, members }),
-        keepalive: true,
-      });
-    };
-    window.addEventListener("beforeunload", handleUnload);
-    return () => window.removeEventListener("beforeunload", handleUnload);
+    fetch("/api/data", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then((r) => { if (!r.ok) throw new Error(); setSaveStatus("saved"); })
+      .catch(() => setSaveStatus("error"));
   }, [projects, tasks, comments, activities, members, loaded]);
 
   useEffect(() => { USERS = members; }, [members]);
