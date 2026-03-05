@@ -22,17 +22,30 @@ export const revalidate = 0;
 
 export async function GET() {
   await headers();
-  const redis = getRedis();
-  const data = await redis.get(KEY);
-  return NextResponse.json(
-    data || { projects: [], tasks: [], comments: [], activities: [], members: [] },
-    { headers: NO_CACHE_HEADERS }
-  );
+  try {
+    const redis = getRedis();
+    const data = await redis.get(KEY);
+    return NextResponse.json(
+      data || { projects: [], tasks: [], comments: [], activities: [], members: [] },
+      { headers: NO_CACHE_HEADERS }
+    );
+  } catch (err) {
+    console.error("GET /api/data failed:", err);
+    return NextResponse.json(
+      { projects: [], tasks: [], comments: [], activities: [], members: [] },
+      { status: 500, headers: NO_CACHE_HEADERS }
+    );
+  }
 }
 
 export async function PUT(request) {
-  const redis = getRedis();
-  const body = await request.json();
-  await redis.set(KEY, body);
-  return NextResponse.json({ ok: true }, { headers: NO_CACHE_HEADERS });
+  try {
+    const redis = getRedis();
+    const body = await request.json();
+    await redis.set(KEY, body);
+    return NextResponse.json({ ok: true }, { headers: NO_CACHE_HEADERS });
+  } catch (err) {
+    console.error("PUT /api/data failed:", err);
+    return NextResponse.json({ ok: false, error: err.message }, { status: 500, headers: NO_CACHE_HEADERS });
+  }
 }
