@@ -893,7 +893,7 @@ export default function App() {
   const [mobOpen, setMobOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/data", { cache: "no-store" })
+    fetch(`/api/data?t=${Date.now()}`, { cache: "no-store" })
       .then((r) => {
         if (!r.ok) throw new Error(`Load failed: ${r.status}`);
         return r.json();
