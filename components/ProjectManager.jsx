@@ -23,13 +23,13 @@ const timeAgo = (d) => {
 };
 
 const prioC = {
-  critical: { bg: "rgba(255,69,58,0.12)", fg: "#ff453a", label: "Critical" },
-  high:     { bg: "rgba(255,159,10,0.12)", fg: "#ff9f0a", label: "High" },
-  medium:   { bg: "rgba(255,214,10,0.12)", fg: "#ffd60a", label: "Medium" },
-  low:      { bg: "rgba(48,209,88,0.12)",  fg: "#30d158", label: "Low" },
+  critical: { bg: "rgba(239,68,68,0.1)", fg: "#ef4444", label: "Critical" },
+  high: { bg: "rgba(249,115,22,0.1)", fg: "#f97316", label: "High" },
+  medium: { bg: "rgba(234,179,8,0.1)", fg: "#eab308", label: "Medium" },
+  low: { bg: "rgba(34,197,94,0.1)", fg: "#22c55e", label: "Low" },
 };
 
-const statusC = { on_track: { c: "#30d158", l: "On Track" }, at_risk: { c: "#ff9f0a", l: "At Risk" }, behind: { c: "#ff453a", l: "Behind" } };
+const statusC = { on_track: { c: "#22c55e", l: "On Track" }, at_risk: { c: "#eab308", l: "At Risk" }, behind: { c: "#ef4444", l: "Behind" } };
 
 // ─── Inline SVG Icons ────────────────────────────────────────────────────────
 
@@ -68,31 +68,30 @@ const Av = ({ user, size = 30 }) => (
 
 const Badge = ({ children, fg, bg }) => (
   <span style={{
-    display: "inline-flex", padding: "3px 8px", borderRadius: 6,
-    fontSize: 11, fontWeight: 600, color: fg, background: bg,
-    letterSpacing: 0.1, whiteSpace: "nowrap",
+    display: "inline-flex", padding: "2px 8px", borderRadius: 20,
+    fontSize: 10.5, fontWeight: 700, color: fg, background: bg,
+    textTransform: "uppercase", letterSpacing: 0.4, whiteSpace: "nowrap",
   }}>{children}</span>
 );
 
 const Btn = ({ children, variant = "primary", onClick, style: s = {}, icon, ...r }) => {
   const base = {
-    display: "inline-flex", alignItems: "center", gap: 6,
-    borderRadius: 9, cursor: "pointer", fontFamily: "var(--font-sans)", fontWeight: 500,
-    fontSize: 13, padding: "7px 14px", transition: "all 0.12s ease", whiteSpace: "nowrap",
-    letterSpacing: -0.1,
+    display: "inline-flex", alignItems: "center", gap: 6, border: "1px solid transparent",
+    borderRadius: 8, cursor: "pointer", fontFamily: "var(--font-display)", fontWeight: 600,
+    fontSize: 12.5, padding: "7px 14px", transition: "all 0.18s ease", whiteSpace: "nowrap",
   };
   const vars = {
-    primary:   { background: "var(--accent)", color: "#fff", border: "none" },
-    secondary: { background: "var(--btn-secondary-bg)", color: "var(--text-primary)", border: "1px solid var(--border)" },
-    ghost:     { background: "transparent", color: "var(--text-secondary)", border: "none", padding: "6px 8px" },
-    cta:       { background: "var(--green)", color: "#fff", border: "none" },
+    primary: { background: "linear-gradient(135deg, #6366f1, #818cf8)", color: "#fff", borderColor: "transparent", boxShadow: "0 2px 12px rgba(99,102,241,0.35)" },
+    secondary: { background: "var(--bg-tertiary)", color: "var(--text-primary)", borderColor: "var(--border)" },
+    ghost: { background: "transparent", color: "var(--text-secondary)", border: "none", padding: "6px 8px" },
+    cta: { background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", borderColor: "transparent", boxShadow: "0 2px 12px rgba(16,185,129,0.3)" },
   };
   return <button onClick={onClick} style={{ ...base, ...vars[variant], ...s }} {...r}>{icon}{children}</button>;
 };
 
-const Bar = ({ value, h = 3, color = "var(--accent)" }) => (
+const Bar = ({ value, h = 5, color = "var(--accent)" }) => (
   <div style={{ width: "100%", height: h, background: "var(--bg-tertiary)", borderRadius: h, overflow: "hidden" }}>
-    <div style={{ width: `${Math.min(100, Math.max(0, value))}%`, height: "100%", background: color, borderRadius: h, transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)" }} />
+    <div style={{ width: `${Math.min(100, Math.max(0, value))}%`, height: "100%", background: color, borderRadius: h, transition: "width 0.5s ease" }} />
   </div>
 );
 
@@ -101,17 +100,16 @@ const Bar = ({ value, h = 3, color = "var(--accent)" }) => (
 const Modal = ({ open, onClose, title, children, w = 540 }) => {
   if (!open) return null;
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(24px) saturate(200%)" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(16px) saturate(180%)" }}>
       <div onClick={(e) => e.stopPropagation()} style={{
-        background: "var(--modal-bg)", borderRadius: 18, width: "100%", maxWidth: w,
-        maxHeight: "85vh", overflow: "auto",
-        boxShadow: "0 40px 120px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.12)",
-        animation: "scaleIn 0.18s cubic-bezier(0.34,1.56,0.64,1)",
+        background: "var(--bg-secondary)", borderRadius: 16, width: "100%", maxWidth: w,
+        maxHeight: "85vh", overflow: "auto", boxShadow: "0 32px 96px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
+        border: "1px solid var(--border)", animation: "scaleIn 0.2s ease",
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, background: "var(--modal-bg)", zIndex: 1, borderRadius: "18px 18px 0 0" }}>
-          <h3 style={{ fontSize: 15, fontWeight: 600, letterSpacing: -0.3 }}>{title}</h3>
-          <button onClick={onClose} style={{ background: "var(--bg-tertiary)", border: "none", cursor: "pointer", color: "var(--text-tertiary)", width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {Icons.x({ size: 14 })}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, background: "var(--bg-secondary)", zIndex: 1, borderRadius: "16px 16px 0 0", backdropFilter: "blur(8px)" }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700 }}>{title}</h3>
+          <button onClick={onClose} style={{ background: "var(--bg-tertiary)", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 6, borderRadius: 8, display: "flex" }}>
+            {Icons.x({ size: 16 })}
           </button>
         </div>
         <div style={{ padding: 20 }}>{children}</div>
@@ -133,65 +131,63 @@ const Sidebar = ({ view, setView, dark, setDark, projects, mobOpen, setMobOpen, 
   ];
 
   const content = (
-    <div style={{ width: 220, height: "100%", background: "var(--sidebar-bg)", backdropFilter: "blur(40px) saturate(200%)", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "18px 14px 10px", display: "flex", alignItems: "center", gap: 9 }}>
-        <div style={{ width: 30, height: 30, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 14, fontWeight: 700, flexShrink: 0 }}>P</div>
-        <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: -0.4 }}>Planwise</div>
+    <div style={{ width: 236, height: "100%", background: "var(--sidebar-bg)", backdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "20px 16px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 16, fontWeight: 800, boxShadow: "0 4px 16px rgba(99,102,241,0.4)" }}>P</div>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: -0.5, fontFamily: "var(--font-display)" }}>Planwise</div>
+          <div style={{ fontSize: 10.5, color: "var(--text-tertiary)", fontWeight: 500, letterSpacing: 0.2 }}>Project Manager</div>
+        </div>
       </div>
 
-      <nav style={{ padding: "6px 8px", flex: 1, overflowY: "auto" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-tertiary)", padding: "14px 8px 5px", letterSpacing: 0.2 }}>Views</div>
+      <nav style={{ padding: "4px 8px", flex: 1 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-tertiary)", padding: "14px 12px 6px", letterSpacing: 1.4, textTransform: "uppercase", fontFamily: "var(--font-display)" }}>Menu</div>
         {nav.map((n) => (
           <button key={n.id} onClick={() => { setView(n.id); setMobOpen(false); }}
+            className={`nav-btn${view === n.id ? " nav-active" : ""}`}
             style={{
-              width: "100%", display: "flex", alignItems: "center", gap: 8,
-              padding: "7px 9px",
-              border: "none", borderRadius: 7, cursor: "pointer", fontSize: 13,
-              fontFamily: "var(--font-sans)", fontWeight: 400, marginBottom: 1,
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: view === n.id ? "9px 12px 9px 14px" : "9px 12px",
+              border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13,
+              fontFamily: "var(--font-sans)",
+              fontWeight: view === n.id ? 700 : 500, marginBottom: 2,
               background: view === n.id ? "var(--sidebar-active)" : "transparent",
-              color: view === n.id ? "var(--text-primary)" : "var(--text-secondary)",
-              transition: "background 0.1s",
+              color: view === n.id ? "var(--accent)" : "var(--text-secondary)",
+              boxShadow: view === n.id ? "var(--glow-accent)" : "none",
             }}>
-            <span style={{ opacity: view === n.id ? 1 : 0.7, color: view === n.id ? "var(--accent)" : "inherit" }}>{n.icon({ size: 15 })}</span>
-            {n.label}
+            {n.icon({ size: 17 })}{n.label}
           </button>
         ))}
 
-        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-tertiary)", padding: "18px 8px 5px", letterSpacing: 0.2 }}>Projects</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-tertiary)", padding: "20px 12px 6px", letterSpacing: 1.4, textTransform: "uppercase", fontFamily: "var(--font-display)" }}>Projects</div>
         {projects.map((p) => (
           <button key={p.id} onClick={() => { setView("kanban"); setMobOpen(false); }} style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "7px 9px",
-            border: "none", borderRadius: 7, background: "transparent", color: "var(--text-secondary)",
-            cursor: "pointer", fontSize: 13, fontFamily: "inherit", fontWeight: 400, marginBottom: 1,
-            transition: "background 0.1s",
-          }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-active)"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: p.color, flexShrink: 0 }} />
+            width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "7px 12px",
+            border: "none", borderRadius: 8, background: "transparent", color: "var(--text-secondary)",
+            cursor: "pointer", fontSize: 12.5, fontFamily: "inherit", fontWeight: 500, marginBottom: 1,
+          }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: p.color, flexShrink: 0 }} />
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
           </button>
         ))}
         <button onClick={() => { onNewProject(); setMobOpen(false); }} style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 7, padding: "7px 9px",
-          border: "none", borderRadius: 7, background: "transparent", color: "var(--text-tertiary)",
-          cursor: "pointer", fontSize: 13, fontFamily: "inherit", fontWeight: 400, marginTop: 2,
-          transition: "background 0.1s",
-        }}
-          onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-active)"}
-          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+          width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px",
+          border: "none", borderRadius: 8, background: "transparent", color: "var(--text-tertiary)",
+          cursor: "pointer", fontSize: 12.5, fontFamily: "inherit", fontWeight: 500, marginTop: 2,
+        }}>
           {Icons.plus({ size: 13 })}
           <span>New Project</span>
         </button>
       </nav>
 
-      <div style={{ padding: "8px 10px 12px", borderTop: "1px solid var(--border)" }}>
+      <div style={{ padding: "10px 12px", borderTop: "1px solid var(--border)" }}>
         <button onClick={() => setDark(!dark)} style={{
-          width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "7px 10px",
-          border: "1px solid var(--border)", borderRadius: 8, background: "transparent", color: "var(--text-tertiary)",
-          cursor: "pointer", fontSize: 12.5, fontFamily: "var(--font-sans)", fontWeight: 400,
-          transition: "all 0.1s",
+          width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
+          border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-tertiary)", color: "var(--text-secondary)",
+          cursor: "pointer", fontSize: 12.5, fontFamily: "var(--font-sans)", fontWeight: 500,
+          transition: "all 0.15s ease",
         }}>
-          {dark ? Icons.sun({ size: 14 }) : Icons.moon({ size: 14 })}
+          {dark ? Icons.sun({ size: 15 }) : Icons.moon({ size: 15 })}
           {dark ? "Light Mode" : "Dark Mode"}
         </button>
       </div>
@@ -214,14 +210,14 @@ const Sidebar = ({ view, setView, dark, setDark, projects, mobOpen, setMobOpen, 
 // ─── Header ──────────────────────────────────────────────────────────────────
 
 const Header = ({ title, sub, setMobOpen, children }) => (
-  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", borderBottom: "1px solid var(--border)", background: "var(--header-bg)", backdropFilter: "blur(40px) saturate(200%)", flexWrap: "wrap", gap: 10, position: "sticky", top: 0, zIndex: 40 }}>
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 24px", borderBottom: "1px solid var(--border)", background: "var(--bg-secondary)", backdropFilter: "blur(16px) saturate(180%)", flexWrap: "wrap", gap: 10, position: "sticky", top: 0, zIndex: 40 }}>
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
       <button className="mob-menu" onClick={() => setMobOpen(true)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-primary)", padding: 4, display: "none" }}>
-        {Icons.menu({ size: 20 })}
+        {Icons.menu({ size: 22 })}
       </button>
       <div>
-        <h1 style={{ fontSize: 17, fontWeight: 600, letterSpacing: -0.4 }}>{title}</h1>
-        {sub && <p style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 1 }}>{sub}</p>}
+        <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: -0.5, fontFamily: "var(--font-display)" }}>{title}</h1>
+        {sub && <p style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 2, fontWeight: 500 }}>{sub}</p>}
       </div>
     </div>
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>{children}</div>
@@ -253,21 +249,25 @@ const DashboardView = ({ projects, tasks, activities, onDeleteProject }) => {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 14, marginBottom: 28 }}>
         {stats.map((s, i) => (
           <div key={i} className="stat-card" style={{
-            background: "var(--bg-card)", borderRadius: 14, padding: "20px 22px",
-            border: "1px solid var(--border)",
-            animation: `fadeIn 0.35s ease ${i * 60}ms both`,
+            background: "var(--bg-card)", borderRadius: 12, padding: "18px 20px",
+            border: "1px solid var(--border)", position: "relative", overflow: "hidden",
+            animation: `fadeIn 0.4s ease ${i * 80}ms both`,
             boxShadow: "var(--shadow-card)",
           }}>
-            <p style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 400, marginBottom: 10 }}>{s.label}</p>
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-              <p style={{ fontSize: 36, fontWeight: 700, letterSpacing: -2, color: "var(--text-primary)", lineHeight: 1 }}>{s.val}</p>
-              <div style={{ color: s.c, opacity: 0.9 }}>{s.icon({ size: 22 })}</div>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${s.c}, ${s.c}88)`, borderRadius: "12px 12px 0 0" }} />
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: `radial-gradient(ellipse at top left, ${s.c}08, transparent 60%)`, pointerEvents: "none" }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ fontSize: 11, color: "var(--text-tertiary)", fontWeight: 700, marginBottom: 6, letterSpacing: 0.8, textTransform: "uppercase", fontFamily: "var(--font-display)" }}>{s.label}</p>
+                <p style={{ fontSize: 30, fontWeight: 800, letterSpacing: -1.5, color: s.c, fontFamily: "var(--font-display)" }}>{s.val}</p>
+              </div>
+              <div style={{ opacity: 0.15, color: s.c }}>{s.icon({ size: 40 })}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: "var(--text-secondary)", letterSpacing: -0.1 }}>Projects</h2>
+      <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, letterSpacing: -0.2, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: 11 }}>Active Projects</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 14, marginBottom: 32 }}>
         {projects.map((p, i) => {
           const prog = getProg(p.id);
@@ -277,16 +277,13 @@ const DashboardView = ({ projects, tasks, activities, onDeleteProject }) => {
           const team = [...new Set(pt.flatMap((t) => getAssigneeIds(t)))];
           return (
             <div key={p.id} className="project-card" style={{
-              background: "var(--bg-card)", borderRadius: 14, padding: 20,
-              border: "1px solid var(--border)",
-              animation: `fadeIn 0.35s ease ${i * 75}ms both`,
+              background: "var(--bg-card)", borderRadius: 12, padding: 20,
+              border: "1px solid var(--border)", borderLeft: `3px solid ${p.color}`,
+              animation: `fadeIn 0.4s ease ${i * 90}ms both`,
               boxShadow: "var(--shadow-card)",
             }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: p.color, flexShrink: 0 }} />
-                  <h3 style={{ fontSize: 14, fontWeight: 600, letterSpacing: -0.2 }}>{p.name}</h3>
-                </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                <h3 style={{ fontSize: 14.5, fontWeight: 700 }}>{p.name}</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <Badge fg={sc.c} bg={sc.c + "18"}>{sc.l}</Badge>
                   <button onClick={(e) => { e.stopPropagation(); if (window.confirm(`Delete "${p.name}"? This cannot be undone.`)) onDeleteProject(p.id); }}
@@ -297,7 +294,7 @@ const DashboardView = ({ projects, tasks, activities, onDeleteProject }) => {
                   </button>
                 </div>
               </div>
-              <p style={{ fontSize: 12.5, color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.5 }}>{p.description}</p>
+              <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", marginBottom: 16, lineHeight: 1.5 }}>{p.description}</p>
               <Bar value={prog} color={p.color} />
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 11.5, color: "var(--text-tertiary)", fontWeight: 500 }}>
                 <span>{prog}% complete</span>
@@ -318,7 +315,7 @@ const DashboardView = ({ projects, tasks, activities, onDeleteProject }) => {
         })}
       </div>
 
-      <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: "var(--text-secondary)", letterSpacing: -0.1 }}>Activity</h2>
+      <h2 style={{ fontSize: 11, fontWeight: 700, marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-tertiary)" }}>Recent Activity</h2>
       <div style={{ background: "var(--bg-card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
         {activities.slice(0, 6).map((a, i) => <ActivityRow key={a.id} a={a} i={i} />)}
       </div>
@@ -353,7 +350,7 @@ const KanbanView = ({ tasks, setTasks, projects, onTask, onNew }) => {
           const ct = ft.filter((t) => t.status === col);
           return (
             <div key={col} onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("kanban-col-over"); }} onDragLeave={(e) => e.currentTarget.classList.remove("kanban-col-over")} onDrop={(e) => { e.currentTarget.classList.remove("kanban-col-over"); drop(col); }}
-              style={{ minWidth: 262, width: 262, flexShrink: 0, background: "var(--kanban-bg)", borderRadius: 14, padding: 8, display: "flex", flexDirection: "column", border: "1px solid var(--border)", transition: "box-shadow 0.2s ease" }}>
+              style={{ minWidth: 272, width: 272, flexShrink: 0, background: "var(--kanban-bg)", borderRadius: 12, padding: 8, display: "flex", flexDirection: "column", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", transition: "all 0.2s ease" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", marginBottom: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 12.5, fontWeight: 700 }}>{col}</span>
@@ -373,10 +370,10 @@ const KanbanView = ({ tasks, setTasks, projects, onTask, onNew }) => {
                     <div key={task.id} draggable onDragStart={() => setDragged(task)} onClick={() => onTask(task)}
                       className="kanban-card"
                       style={{
-                        background: "var(--bg-secondary)", borderRadius: 11, padding: "13px 14px",
+                        background: "var(--bg-card)", borderRadius: 10, padding: 14,
                         border: "1px solid var(--border)", cursor: "grab",
                         boxShadow: "var(--shadow-card)",
-                        animation: `fadeIn 0.25s ease both`,
+                        animation: `fadeIn 0.3s ease both`,
                       }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 7 }}>
                         {pr && <div style={{ width: 6, height: 6, borderRadius: "50%", background: pr.color }} />}
@@ -742,7 +739,7 @@ const TeamView = ({ tasks, members, onAdd, onDelete }) => {
           const totalH = ut.reduce((s, t) => s + t.estimatedHours, 0);
           const doneH = ut.filter((t) => t.status === "Done").reduce((s, t) => s + t.estimatedHours, 0);
           return (
-            <div key={user.id} className="team-card" style={{ background: "var(--bg-card)", borderRadius: 14, padding: 20, border: "1px solid var(--border)", animation: `fadeIn 0.35s ease ${i * 60}ms both`, position: "relative", boxShadow: "var(--shadow-card)" }}>
+            <div key={user.id} className="team-card" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid var(--border)", animation: `fadeIn 0.4s ease ${i * 80}ms both`, position: "relative", boxShadow: "var(--shadow-card)" }}>
               <button onClick={() => onDelete(user.id)} style={{ position: "absolute", top: 12, right: 12, background: "var(--bg-tertiary)", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 4, borderRadius: 6, display: "flex" }}>
                 {Icons.x({ size: 14 })}
               </button>
@@ -1012,98 +1009,70 @@ export default function App() {
   const [t, s] = titles[view] || ["", ""];
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg-primary)", backgroundImage: dark ? "radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99,102,241,0.1), transparent)" : "none" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
         :root {
-          --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
-          --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
-          --font-mono: 'SF Mono', 'JetBrains Mono', monospace;
+          --font-display: 'Manrope', -apple-system, sans-serif;
+          --font-sans: 'DM Sans', -apple-system, sans-serif;
+          --radius: 10px;
+          --transition: 150ms ease;
         }
         ${dark ? `
         :root {
-          --bg-primary: #000000;
-          --bg-secondary: #1c1c1e;
-          --bg-tertiary: #2c2c2e;
-          --bg-card: #1c1c1e;
-          --bg-hover: rgba(255,255,255,0.06);
-          --border: rgba(255,255,255,0.1);
-          --border-focus: #0a84ff;
-          --text-primary: #ffffff;
-          --text-secondary: rgba(255,255,255,0.55);
-          --text-tertiary: rgba(255,255,255,0.28);
-          --accent: #0a84ff;
-          --accent-hover: #409cff;
-          --accent-bg: rgba(10,132,255,0.14);
-          --green: #30d158;
-          --red: #ff453a;
-          --orange: #ff9f0a;
-          --yellow: #ffd60a;
-          --sidebar-bg: rgba(22,22,24,0.92);
-          --sidebar-active: rgba(255,255,255,0.09);
-          --header-bg: rgba(0,0,0,0.75);
-          --modal-bg: #1c1c1e;
-          --kanban-bg: rgba(28,28,30,0.6);
-          --btn-secondary-bg: rgba(255,255,255,0.08);
-          --scrollbar-thumb: rgba(255,255,255,0.12);
-          --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 2px 12px rgba(0,0,0,0.4);
-          --shadow-float: 0 0 0 0.5px rgba(255,255,255,0.1), 0 12px 40px rgba(0,0,0,0.7);
+          --bg-primary: #070810; --bg-secondary: #0d0e1a; --bg-tertiary: #141628;
+          --bg-hover: #1c1f38; --bg-card: #0d0f1e; --border: #1e2038;
+          --border-focus: #6366f1; --text-primary: #e2e8f0; --text-secondary: #8892a4;
+          --text-tertiary: #525d6e; --accent: #818cf8; --accent-hover: #6366f1;
+          --accent-bg: rgba(99,102,241,0.1); --sidebar-bg: rgba(7,8,16,0.85);
+          --sidebar-active: rgba(99,102,241,0.1); --kanban-bg: #090b18;
+          --scrollbar-thumb: #1e2038; --cta: #10b981; --cta-hover: #059669;
+          --shadow-card: 0 2px 16px rgba(0,0,0,0.5);
+          --shadow-float: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.2);
+          --glow-accent: 0 0 20px rgba(99,102,241,0.12);
         }` : `
         :root {
-          --bg-primary: #f2f2f7;
-          --bg-secondary: #ffffff;
-          --bg-tertiary: #e5e5ea;
-          --bg-card: #ffffff;
-          --bg-hover: rgba(0,0,0,0.04);
-          --border: rgba(0,0,0,0.09);
-          --border-focus: #007aff;
-          --text-primary: #000000;
-          --text-secondary: rgba(0,0,0,0.55);
-          --text-tertiary: rgba(0,0,0,0.3);
-          --accent: #007aff;
-          --accent-hover: #0071e3;
-          --accent-bg: rgba(0,122,255,0.1);
-          --green: #34c759;
-          --red: #ff3b30;
-          --orange: #ff9500;
-          --yellow: #ffcc00;
-          --sidebar-bg: rgba(242,242,247,0.92);
-          --sidebar-active: rgba(0,0,0,0.06);
-          --header-bg: rgba(242,242,247,0.85);
-          --modal-bg: #ffffff;
-          --kanban-bg: rgba(242,242,247,0.7);
-          --btn-secondary-bg: rgba(0,0,0,0.05);
-          --scrollbar-thumb: rgba(0,0,0,0.18);
-          --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 0 rgba(0,0,0,0.04);
-          --shadow-float: 0 0 0 0.5px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.14);
+          --bg-primary: #f5f6fa; --bg-secondary: #ffffff; --bg-tertiary: #eef0f6;
+          --bg-hover: #e3e6f0; --bg-card: #ffffff; --border: #dfe2ec;
+          --border-focus: #6366f1; --text-primary: #0f172a; --text-secondary: #64748b;
+          --text-tertiary: #94a3b8; --accent: #6366f1; --accent-hover: #4f46e5;
+          --accent-bg: rgba(99,102,241,0.08); --sidebar-bg: #ffffff;
+          --sidebar-active: rgba(99,102,241,0.07); --kanban-bg: #eef0f6;
+          --scrollbar-thumb: #cbd5e1; --cta: #059669; --cta-hover: #047857;
+          --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+          --shadow-float: 0 8px 24px rgba(0,0,0,0.1), 0 0 0 1px rgba(99,102,241,0.15);
+          --glow-accent: 0 0 20px rgba(99,102,241,0.08);
         }`}
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        body, html { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); }
+        h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.03em; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
         input, textarea, select {
           font-family: var(--font-sans); font-size: 13px; color: var(--text-primary);
-          background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 9px;
-          padding: 9px 12px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; width: 100%;
+          background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px;
+          padding: 8px 12px; outline: none; transition: border-color 0.15s; width: 100%;
         }
-        input:focus, textarea:focus, select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-bg); }
-        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; background-color: var(--bg-tertiary); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+        input:focus, textarea:focus, select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes shimmer { to { background-position: -200% 0; } }
-        .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: default; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); }
+        .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
         .project-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .project-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); }
-        .kanban-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
-        .kanban-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-float) !important; }
+        .project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
+        .kanban-card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+        .kanban-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-float) !important; border-color: rgba(99,102,241,0.3) !important; }
         .team-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .team-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); }
-        .kanban-col-over { box-shadow: inset 0 0 0 1.5px var(--accent) !important; }
-        @media (min-width: 768px) { .sidebar-desktop { display: block !important; } .main-wrap { margin-left: 220px !important; } }
+        .team-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
+        .nav-btn { position: relative; transition: all 0.15s ease; }
+        .nav-btn.nav-active::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 2px; background: var(--accent); border-radius: 0 2px 2px 0; }
+        .kanban-col-over { background: rgba(99,102,241,0.04) !important; box-shadow: inset 0 0 0 1px rgba(99,102,241,0.25); }
+        @media (min-width: 768px) { .sidebar-desktop { display: block !important; } .main-wrap { margin-left: 236px !important; } }
         @media (max-width: 767px) { .mob-menu { display: flex !important; } }
       `}</style>
 
