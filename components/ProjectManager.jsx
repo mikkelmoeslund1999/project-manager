@@ -77,13 +77,14 @@ const Badge = ({ children, fg, bg }) => (
 const Btn = ({ children, variant = "primary", onClick, style: s = {}, icon, ...r }) => {
   const base = {
     display: "inline-flex", alignItems: "center", gap: 6, border: "1px solid transparent",
-    borderRadius: 8, cursor: "pointer", fontFamily: "inherit", fontWeight: 600,
-    fontSize: 12.5, padding: "7px 14px", transition: "all 0.15s ease", whiteSpace: "nowrap",
+    borderRadius: 8, cursor: "pointer", fontFamily: "var(--font-display)", fontWeight: 600,
+    fontSize: 12.5, padding: "7px 14px", transition: "all 0.18s ease", whiteSpace: "nowrap",
   };
   const vars = {
-    primary: { background: "var(--accent)", color: "#fff", borderColor: "var(--accent)" },
+    primary: { background: "linear-gradient(135deg, #6366f1, #818cf8)", color: "#fff", borderColor: "transparent", boxShadow: "0 2px 12px rgba(99,102,241,0.35)" },
     secondary: { background: "var(--bg-tertiary)", color: "var(--text-primary)", borderColor: "var(--border)" },
     ghost: { background: "transparent", color: "var(--text-secondary)", border: "none", padding: "6px 8px" },
+    cta: { background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", borderColor: "transparent", boxShadow: "0 2px 12px rgba(16,185,129,0.3)" },
   };
   return <button onClick={onClick} style={{ ...base, ...vars[variant], ...s }} {...r}>{icon}{children}</button>;
 };
@@ -99,13 +100,13 @@ const Bar = ({ value, h = 5, color = "var(--accent)" }) => (
 const Modal = ({ open, onClose, title, children, w = 540 }) => {
   if (!open) return null;
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(4px)" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(16px) saturate(180%)" }}>
       <div onClick={(e) => e.stopPropagation()} style={{
         background: "var(--bg-secondary)", borderRadius: 16, width: "100%", maxWidth: w,
-        maxHeight: "85vh", overflow: "auto", boxShadow: "0 24px 80px rgba(0,0,0,0.25)",
+        maxHeight: "85vh", overflow: "auto", boxShadow: "0 32px 96px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
         border: "1px solid var(--border)", animation: "scaleIn 0.2s ease",
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, background: "var(--bg-secondary)", zIndex: 1, borderRadius: "16px 16px 0 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, background: "var(--bg-secondary)", zIndex: 1, borderRadius: "16px 16px 0 0", backdropFilter: "blur(8px)" }}>
           <h3 style={{ fontSize: 15, fontWeight: 700 }}>{title}</h3>
           <button onClick={onClose} style={{ background: "var(--bg-tertiary)", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 6, borderRadius: 8, display: "flex" }}>
             {Icons.x({ size: 16 })}
@@ -130,30 +131,35 @@ const Sidebar = ({ view, setView, dark, setDark, projects, mobOpen, setMobOpen, 
   ];
 
   const content = (
-    <div style={{ width: 236, height: "100%", background: "var(--sidebar-bg)", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: 236, height: "100%", background: "var(--sidebar-bg)", backdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "20px 16px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 16, fontWeight: 800 }}>P</div>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 16, fontWeight: 800, boxShadow: "0 4px 16px rgba(99,102,241,0.4)" }}>P</div>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: -0.3 }}>Planwise</div>
-          <div style={{ fontSize: 10.5, color: "var(--text-tertiary)", fontWeight: 500 }}>Project Manager</div>
+          <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: -0.5, fontFamily: "var(--font-display)" }}>Planwise</div>
+          <div style={{ fontSize: 10.5, color: "var(--text-tertiary)", fontWeight: 500, letterSpacing: 0.2 }}>Project Manager</div>
         </div>
       </div>
 
       <nav style={{ padding: "4px 8px", flex: 1 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-tertiary)", padding: "14px 12px 6px", letterSpacing: 1.2, textTransform: "uppercase" }}>Menu</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-tertiary)", padding: "14px 12px 6px", letterSpacing: 1.4, textTransform: "uppercase", fontFamily: "var(--font-display)" }}>Menu</div>
         {nav.map((n) => (
-          <button key={n.id} onClick={() => { setView(n.id); setMobOpen(false); }} style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 12px",
-            border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: "inherit",
-            fontWeight: view === n.id ? 700 : 500, marginBottom: 2, transition: "all 0.15s ease",
-            background: view === n.id ? "var(--sidebar-active)" : "transparent",
-            color: view === n.id ? "var(--accent)" : "var(--text-secondary)",
-          }}>
+          <button key={n.id} onClick={() => { setView(n.id); setMobOpen(false); }}
+            className={`nav-btn${view === n.id ? " nav-active" : ""}`}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: view === n.id ? "9px 12px 9px 14px" : "9px 12px",
+              border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13,
+              fontFamily: "var(--font-sans)",
+              fontWeight: view === n.id ? 700 : 500, marginBottom: 2,
+              background: view === n.id ? "var(--sidebar-active)" : "transparent",
+              color: view === n.id ? "var(--accent)" : "var(--text-secondary)",
+              boxShadow: view === n.id ? "var(--glow-accent)" : "none",
+            }}>
             {n.icon({ size: 17 })}{n.label}
           </button>
         ))}
 
-        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-tertiary)", padding: "20px 12px 6px", letterSpacing: 1.2, textTransform: "uppercase" }}>Projects</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-tertiary)", padding: "20px 12px 6px", letterSpacing: 1.4, textTransform: "uppercase", fontFamily: "var(--font-display)" }}>Projects</div>
         {projects.map((p) => (
           <button key={p.id} onClick={() => { setView("kanban"); setMobOpen(false); }} style={{
             width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "7px 12px",
@@ -177,8 +183,9 @@ const Sidebar = ({ view, setView, dark, setDark, projects, mobOpen, setMobOpen, 
       <div style={{ padding: "10px 12px", borderTop: "1px solid var(--border)" }}>
         <button onClick={() => setDark(!dark)} style={{
           width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
-          border: "none", borderRadius: 8, background: "var(--bg-tertiary)", color: "var(--text-secondary)",
-          cursor: "pointer", fontSize: 12.5, fontFamily: "inherit", fontWeight: 500,
+          border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-tertiary)", color: "var(--text-secondary)",
+          cursor: "pointer", fontSize: 12.5, fontFamily: "var(--font-sans)", fontWeight: 500,
+          transition: "all 0.15s ease",
         }}>
           {dark ? Icons.sun({ size: 15 }) : Icons.moon({ size: 15 })}
           {dark ? "Light Mode" : "Dark Mode"}
@@ -203,14 +210,14 @@ const Sidebar = ({ view, setView, dark, setDark, projects, mobOpen, setMobOpen, 
 // ─── Header ──────────────────────────────────────────────────────────────────
 
 const Header = ({ title, sub, setMobOpen, children }) => (
-  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 24px", borderBottom: "1px solid var(--border)", background: "var(--bg-secondary)", flexWrap: "wrap", gap: 10, position: "sticky", top: 0, zIndex: 40 }}>
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 24px", borderBottom: "1px solid var(--border)", background: "var(--bg-secondary)", backdropFilter: "blur(16px) saturate(180%)", flexWrap: "wrap", gap: 10, position: "sticky", top: 0, zIndex: 40 }}>
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
       <button className="mob-menu" onClick={() => setMobOpen(true)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-primary)", padding: 4, display: "none" }}>
         {Icons.menu({ size: 22 })}
       </button>
       <div>
-        <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: -0.3 }}>{title}</h1>
-        {sub && <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", marginTop: 1, fontWeight: 500 }}>{sub}</p>}
+        <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: -0.5, fontFamily: "var(--font-display)" }}>{title}</h1>
+        {sub && <p style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 2, fontWeight: 500 }}>{sub}</p>}
       </div>
     </div>
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>{children}</div>
@@ -219,7 +226,7 @@ const Header = ({ title, sub, setMobOpen, children }) => (
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
-const DashboardView = ({ projects, tasks, activities }) => {
+const DashboardView = ({ projects, tasks, activities, onDeleteProject }) => {
   const total = tasks.length;
   const done = tasks.filter((t) => t.status === "Done").length;
   const active = tasks.filter((t) => t.status === "In Progress").length;
@@ -241,24 +248,26 @@ const DashboardView = ({ projects, tasks, activities }) => {
     <div style={{ padding: 24 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 14, marginBottom: 28 }}>
         {stats.map((s, i) => (
-          <div key={i} style={{
+          <div key={i} className="stat-card" style={{
             background: "var(--bg-card)", borderRadius: 12, padding: "18px 20px",
             border: "1px solid var(--border)", position: "relative", overflow: "hidden",
-            animation: `fadeIn 0.3s ease ${i * 60}ms both`,
+            animation: `fadeIn 0.4s ease ${i * 80}ms both`,
+            boxShadow: "var(--shadow-card)",
           }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.c, borderRadius: "12px 12px 0 0" }} />
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${s.c}, ${s.c}88)`, borderRadius: "12px 12px 0 0" }} />
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: `radial-gradient(ellipse at top left, ${s.c}08, transparent 60%)`, pointerEvents: "none" }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
-                <p style={{ fontSize: 11.5, color: "var(--text-tertiary)", fontWeight: 600, marginBottom: 6, letterSpacing: 0.2 }}>{s.label}</p>
-                <p style={{ fontSize: 28, fontWeight: 800, letterSpacing: -1.5, color: s.c }}>{s.val}</p>
+                <p style={{ fontSize: 11, color: "var(--text-tertiary)", fontWeight: 700, marginBottom: 6, letterSpacing: 0.8, textTransform: "uppercase", fontFamily: "var(--font-display)" }}>{s.label}</p>
+                <p style={{ fontSize: 30, fontWeight: 800, letterSpacing: -1.5, color: s.c, fontFamily: "var(--font-display)" }}>{s.val}</p>
               </div>
-              <div style={{ opacity: 0.2, color: s.c }}>{s.icon({ size: 36 })}</div>
+              <div style={{ opacity: 0.15, color: s.c }}>{s.icon({ size: 40 })}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, letterSpacing: -0.2 }}>Active Projects</h2>
+      <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, letterSpacing: -0.2, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: 11 }}>Active Projects</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 14, marginBottom: 32 }}>
         {projects.map((p, i) => {
           const prog = getProg(p.id);
@@ -267,14 +276,23 @@ const DashboardView = ({ projects, tasks, activities }) => {
           const dl = daysUntil(p.deadline);
           const team = [...new Set(pt.flatMap((t) => getAssigneeIds(t)))];
           return (
-            <div key={p.id} style={{
+            <div key={p.id} className="project-card" style={{
               background: "var(--bg-card)", borderRadius: 12, padding: 20,
               border: "1px solid var(--border)", borderLeft: `3px solid ${p.color}`,
-              animation: `fadeIn 0.3s ease ${i * 80}ms both`,
+              animation: `fadeIn 0.4s ease ${i * 90}ms both`,
+              boxShadow: "var(--shadow-card)",
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                 <h3 style={{ fontSize: 14.5, fontWeight: 700 }}>{p.name}</h3>
-                <Badge fg={sc.c} bg={sc.c + "18"}>{sc.l}</Badge>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <Badge fg={sc.c} bg={sc.c + "18"}>{sc.l}</Badge>
+                  <button onClick={(e) => { e.stopPropagation(); if (window.confirm(`Delete "${p.name}"? This cannot be undone.`)) onDeleteProject(p.id); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-tertiary)", display: "flex", padding: 3, borderRadius: 6, transition: "color 0.15s" }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = "#ef4444"}
+                    onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-tertiary)"}>
+                    {Icons.x({ size: 14 })}
+                  </button>
+                </div>
               </div>
               <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", marginBottom: 16, lineHeight: 1.5 }}>{p.description}</p>
               <Bar value={prog} color={p.color} />
@@ -297,8 +315,8 @@ const DashboardView = ({ projects, tasks, activities }) => {
         })}
       </div>
 
-      <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, letterSpacing: -0.2 }}>Recent Activity</h2>
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden" }}>
+      <h2 style={{ fontSize: 11, fontWeight: 700, marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-tertiary)" }}>Recent Activity</h2>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
         {activities.slice(0, 6).map((a, i) => <ActivityRow key={a.id} a={a} i={i} />)}
       </div>
     </div>
@@ -331,12 +349,12 @@ const KanbanView = ({ tasks, setTasks, projects, onTask, onNew }) => {
         {COLUMNS.map((col) => {
           const ct = ft.filter((t) => t.status === col);
           return (
-            <div key={col} onDragOver={(e) => e.preventDefault()} onDrop={() => drop(col)}
-              style={{ minWidth: 272, width: 272, flexShrink: 0, background: "var(--kanban-bg)", borderRadius: 12, padding: 8, display: "flex", flexDirection: "column" }}>
+            <div key={col} onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("kanban-col-over"); }} onDragLeave={(e) => e.currentTarget.classList.remove("kanban-col-over")} onDrop={(e) => { e.currentTarget.classList.remove("kanban-col-over"); drop(col); }}
+              style={{ minWidth: 272, width: 272, flexShrink: 0, background: "var(--kanban-bg)", borderRadius: 12, padding: 8, display: "flex", flexDirection: "column", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", transition: "all 0.2s ease" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", marginBottom: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 12.5, fontWeight: 700 }}>{col}</span>
-                  <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--text-tertiary)", background: "var(--bg-tertiary)", padding: "1px 7px", borderRadius: 10 }}>{ct.length}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-tertiary)", background: "var(--bg-tertiary)", padding: "2px 8px", borderRadius: 10, fontFamily: "var(--font-display)" }}>{ct.length}</span>
                 </div>
                 <button onClick={() => onNew(col)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-tertiary)", display: "flex", padding: 2 }}>
                   {Icons.plus({ size: 15 })}
@@ -350,9 +368,12 @@ const KanbanView = ({ tasks, setTasks, projects, onTask, onNew }) => {
                   const pr = projects.find((p) => p.id === task.projectId);
                   return (
                     <div key={task.id} draggable onDragStart={() => setDragged(task)} onClick={() => onTask(task)}
+                      className="kanban-card"
                       style={{
                         background: "var(--bg-card)", borderRadius: 10, padding: 14,
-                        border: "1px solid var(--border)", cursor: "grab", transition: "all 0.15s ease",
+                        border: "1px solid var(--border)", cursor: "grab",
+                        boxShadow: "var(--shadow-card)",
+                        animation: `fadeIn 0.3s ease both`,
                       }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 7 }}>
                         {pr && <div style={{ width: 6, height: 6, borderRadius: "50%", background: pr.color }} />}
@@ -423,7 +444,7 @@ const TaskListView = ({ tasks, projects, onTask }) => {
         </select>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
@@ -718,7 +739,7 @@ const TeamView = ({ tasks, members, onAdd, onDelete }) => {
           const totalH = ut.reduce((s, t) => s + t.estimatedHours, 0);
           const doneH = ut.filter((t) => t.status === "Done").reduce((s, t) => s + t.estimatedHours, 0);
           return (
-            <div key={user.id} style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid var(--border)", animation: `fadeIn 0.3s ease ${i * 80}ms both`, position: "relative" }}>
+            <div key={user.id} className="team-card" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid var(--border)", animation: `fadeIn 0.4s ease ${i * 80}ms both`, position: "relative", boxShadow: "var(--shadow-card)" }}>
               <button onClick={() => onDelete(user.id)} style={{ position: "absolute", top: 12, right: 12, background: "var(--bg-tertiary)", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 4, borderRadius: 6, display: "flex" }}>
                 {Icons.x({ size: 14 })}
               </button>
@@ -886,7 +907,7 @@ const ActivityRow = ({ a, i = 0 }) => {
 
 const ActivityView = ({ activities }) => (
   <div style={{ padding: 24 }}>
-    <div style={{ background: "var(--bg-card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden" }}>
+    <div style={{ background: "var(--bg-card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
       {activities.map((a, i) => <ActivityRow key={a.id} a={a} i={i} />)}
     </div>
   </div>
@@ -972,6 +993,10 @@ export default function App() {
     setActivities((p) => [{ id: "a" + Date.now(), type: "member_joined", userId: m.id, projectId: null, meta: { name: m.name }, createdAt: new Date().toISOString() }, ...p]);
   };
   const deleteMember = (id) => setMembers((p) => p.filter((m) => m.id !== id));
+  const deleteProject = (id) => {
+    setProjects((p) => p.filter((x) => x.id !== id));
+    setTasks((p) => p.filter((t) => t.projectId !== id));
+  };
 
   const titles = {
     dashboard: ["Dashboard", "Overview of all projects and activity"],
@@ -984,24 +1009,28 @@ export default function App() {
   const [t, s] = titles[view] || ["", ""];
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg-primary)", backgroundImage: dark ? "radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99,102,241,0.1), transparent)" : "none" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
         :root {
+          --font-display: 'Manrope', -apple-system, sans-serif;
           --font-sans: 'DM Sans', -apple-system, sans-serif;
           --radius: 10px;
           --transition: 150ms ease;
         }
         ${dark ? `
         :root {
-          --bg-primary: #0b0d14; --bg-secondary: #12141e; --bg-tertiary: #1a1d2e;
-          --bg-hover: #222640; --bg-card: #151825; --border: #252841;
-          --border-focus: #6366f1; --text-primary: #e4e7ed; --text-secondary: #9ca3af;
-          --text-tertiary: #6b7280; --accent: #818cf8; --accent-hover: #6366f1;
-          --accent-bg: rgba(99,102,241,0.12); --sidebar-bg: #090b10;
-          --sidebar-active: rgba(99,102,241,0.14); --kanban-bg: #0f1119;
-          --scrollbar-thumb: #252841;
+          --bg-primary: #070810; --bg-secondary: #0d0e1a; --bg-tertiary: #141628;
+          --bg-hover: #1c1f38; --bg-card: #0d0f1e; --border: #1e2038;
+          --border-focus: #6366f1; --text-primary: #e2e8f0; --text-secondary: #8892a4;
+          --text-tertiary: #525d6e; --accent: #818cf8; --accent-hover: #6366f1;
+          --accent-bg: rgba(99,102,241,0.1); --sidebar-bg: rgba(7,8,16,0.85);
+          --sidebar-active: rgba(99,102,241,0.1); --kanban-bg: #090b18;
+          --scrollbar-thumb: #1e2038; --cta: #10b981; --cta-hover: #059669;
+          --shadow-card: 0 2px 16px rgba(0,0,0,0.5);
+          --shadow-float: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.2);
+          --glow-accent: 0 0 20px rgba(99,102,241,0.12);
         }` : `
         :root {
           --bg-primary: #f5f6fa; --bg-secondary: #ffffff; --bg-tertiary: #eef0f6;
@@ -1010,10 +1039,14 @@ export default function App() {
           --text-tertiary: #94a3b8; --accent: #6366f1; --accent-hover: #4f46e5;
           --accent-bg: rgba(99,102,241,0.08); --sidebar-bg: #ffffff;
           --sidebar-active: rgba(99,102,241,0.07); --kanban-bg: #eef0f6;
-          --scrollbar-thumb: #cbd5e1;
+          --scrollbar-thumb: #cbd5e1; --cta: #059669; --cta-hover: #047857;
+          --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+          --shadow-float: 0 8px 24px rgba(0,0,0,0.1), 0 0 0 1px rgba(99,102,241,0.15);
+          --glow-accent: 0 0 20px rgba(99,102,241,0.08);
         }`}
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); }
+        h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.03em; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
@@ -1022,11 +1055,23 @@ export default function App() {
           background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px;
           padding: 8px 12px; outline: none; transition: border-color 0.15s; width: 100%;
         }
-        input:focus, textarea:focus, select:focus { border-color: var(--border-focus); }
+        input:focus, textarea:focus, select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
         select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes shimmer { to { background-position: -200% 0; } }
+        .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
+        .project-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
+        .kanban-card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+        .kanban-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-float) !important; border-color: rgba(99,102,241,0.3) !important; }
+        .team-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .team-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
+        .nav-btn { position: relative; transition: all 0.15s ease; }
+        .nav-btn.nav-active::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 2px; background: var(--accent); border-radius: 0 2px 2px 0; }
+        .kanban-col-over { background: rgba(99,102,241,0.04) !important; box-shadow: inset 0 0 0 1px rgba(99,102,241,0.25); }
         @media (min-width: 768px) { .sidebar-desktop { display: block !important; } .main-wrap { margin-left: 236px !important; } }
         @media (max-width: 767px) { .mob-menu { display: flex !important; } }
       `}</style>
@@ -1038,12 +1083,26 @@ export default function App() {
           <Btn onClick={() => openNew()} icon={Icons.plus({ size: 14 })}>New Task</Btn>
         </Header>
 
-        {view === "dashboard" && <DashboardView projects={projects} tasks={tasks} activities={activities} />}
-        {view === "kanban" && <KanbanView tasks={tasks} setTasks={setTasks} projects={projects} onTask={openTask} onNew={openNew} />}
-        {view === "tasks" && <TaskListView tasks={tasks} projects={projects} onTask={openTask} />}
-        {view === "team" && <TeamView tasks={tasks} members={members} onAdd={addMember} onDelete={deleteMember} />}
-        {view === "timeline" && <TimelineView tasks={tasks} projects={projects} />}
-        {view === "activity" && <ActivityView activities={activities} />}
+        {!loaded && (
+        <div style={{ padding: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 14, marginBottom: 28 }}>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} style={{ height: 90, borderRadius: 12, background: "linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-hover) 50%, var(--bg-tertiary) 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", animationDelay: `${i * 0.1}s` }} />
+            ))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 14 }}>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ height: 160, borderRadius: 12, background: "linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-hover) 50%, var(--bg-tertiary) 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
+        </div>
+      )}
+      {loaded && view === "dashboard" && <DashboardView projects={projects} tasks={tasks} activities={activities} onDeleteProject={deleteProject} />}
+        {loaded && view === "kanban" && <KanbanView tasks={tasks} setTasks={setTasks} projects={projects} onTask={openTask} onNew={openNew} />}
+        {loaded && view === "tasks" && <TaskListView tasks={tasks} projects={projects} onTask={openTask} />}
+        {loaded && view === "team" && <TeamView tasks={tasks} members={members} onAdd={addMember} onDelete={deleteMember} />}
+        {loaded && view === "timeline" && <TimelineView tasks={tasks} projects={projects} />}
+        {loaded && view === "activity" && <ActivityView activities={activities} />}
       </div>
 
       <TaskDetail task={selTask} open={detailOpen} onClose={() => setDetailOpen(false)}
